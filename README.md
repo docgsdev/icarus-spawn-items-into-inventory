@@ -1,57 +1,94 @@
-Icarus — Spawn Items Into Inventory
+<div align="center">
 
-Add items to your own Icarus save file, written specifically for players on Linux via Proton/Steam Play (most existing guides assume Windows).
+# Icarus — Spawn Items Into Inventory
 
-Use case: unblocking missions that have already run well past a reasonable amount of time to finish — e.g. a required crop or resource that just isn't spawning enough in your world. Not meant as a way to skip normal progression, and not recommended for that.
+Add items to your own [Icarus](https://store.steampowered.com/app/1149460/Icarus/) save file — written specifically for players on **Linux via Proton/Steam Play**, since most existing guides assume Windows.
 
-→ Full item list, internal names & max stack sizes — 2,453 items, searchable with Ctrl+F, includes unofficial Portuguese/Spanish names.
+[![Platform](https://img.shields.io/badge/platform-Linux%20%2F%20Proton-3a3a3a?logo=linux&logoColor=white)](#)
+[![Python](https://img.shields.io/badge/python-3.8%2B-3a3a3a?logo=python&logoColor=white)](#)
+[![Anti-cheat](https://img.shields.io/badge/anti--cheat-none-3a3a3a)](#is-this-safe)
+[![Items catalogued](https://img.shields.io/badge/items%20catalogued-2%2C453-3a3a3a)](./items.md)
 
-Is this safe?
-Icarus has no anti-cheat (no VAC, no EAC) — no ban risk from editing your own local save.
-This only edits local files on your machine, and only affects sessions where you're the host.
-Always close the game and back up your save before editing anything (Step 1 below).
-If you play with friends: test in a solo/private session first, save properly by exiting to the menu, then open it for friends. Editing while others are connected can desync and corrupt items.
-What you need
+**[→ Browse the full item list](./items.md)** · 2,453 items, internal names, max stack sizes, unofficial PT/ES names
 
-Icarus via Proton/GE-Proton, a terminal, git, Python 3.8+, pip (sudo pacman -S python-pip on Arch/CachyOS), and a terminal text editor like nano.
+</div>
 
-1. Find your save & back it up
+<br>
 
-Your save lives inside the Proton prefix, at the same relative path Windows uses. Icarus's Steam AppID is 1149460.
+> [!IMPORTANT]
+> **Use case:** unblocking missions that have already run well past a reasonable amount of time to finish — e.g. a required crop or resource that just isn't spawning enough in your world. Not meant as a way to skip normal progression, and not recommended for that.
 
-bash
+## Is this safe?
+
+> [!TIP]
+> Icarus has **no anti-cheat** (no VAC, no EAC) — there's no ban risk from editing your own local save. This only touches files on your machine, and only affects sessions where you're the host.
+
+> [!WARNING]
+> - Always close the game and **back up your save** before editing anything (Step 1 below).
+> - If you play with friends: test in a solo/private session first, save properly by exiting to the menu, *then* open it for friends. Editing while others are connected can desync and corrupt items.
+
+## What you need
+
+Icarus via Proton/GE-Proton · a terminal · `git` · Python 3.8+ · `pip` (`sudo pacman -S python-pip` on Arch/CachyOS) · a terminal text editor like `nano`
+
+---
+
+## 1 · Find your save & back it up
+
+Your save lives inside the Proton prefix, at the same relative path Windows uses. Icarus's Steam AppID is **1149460**.
+
+```bash
 # locate the compatdata folder
 find ~/.steam ~/.local/share/Steam -maxdepth 4 -iname 'compatdata' 2>/dev/null
 
 # with the game closed, back up everything before touching anything
 cp -r ~/.local/share/Steam/steamapps/compatdata/1149460/pfx/drive_c/users/steamuser/AppData/Local/Icarus/Saved/PlayerData/<YOUR_STEAMID64> ~/icarus_backup_$(date +%Y%m%d)
+```
 
-Your prospect saves are .json files under .../PlayerData/<YOUR_STEAMID64>/Prospects/. Also worth disabling Steam Cloud for Icarus temporarily (game Properties → Cloud), so it doesn't overwrite your edit on next launch.
+Your prospect saves are `.json` files under `.../PlayerData/<YOUR_STEAMID64>/Prospects/`.
 
-2. Set up the editing tool
+> [!TIP]
+> Also disable Steam Cloud for Icarus temporarily (game Properties → Cloud), so it doesn't overwrite your edit on next launch.
 
-The save's inventory data is a zlib-compressed, base64-encoded Unreal Engine binary blob inside the JSON — not something you can hand-edit in a text editor. We use the open-source icarus-save-editor, which handles that for you.
+## 2 · Set up the editing tool
 
-bash
+The save's inventory data is a zlib-compressed, base64-encoded Unreal Engine binary blob inside the JSON — not something you can hand-edit in a text editor. We use the open-source [`icarus-save-editor`](https://github.com/N30Z/icarus-save-editor), which handles that for you.
+
+```bash
 cd ~ && git clone https://github.com/N30Z/icarus-save-editor && cd icarus-save-editor
 pip install customtkinter --break-system-packages
 cp ~/.local/share/Steam/steamapps/compatdata/1149460/pfx/drive_c/users/steamuser/AppData/Local/Icarus/Saved/PlayerData/<YOUR_STEAMID64>/Prospects/<PROSPECT_NAME>.json ~/icarus-save-editor/savegames/
+```
 
-Find your Steam ID and character slot (you'll need both below):
+Find your Steam ID and character slot (you'll need both next):
 
-bash
+```bash
 python3 gd_inventory_cli.py savegames/<PROSPECT_NAME>.json list
 # → <YOUR_STEAMID64>  slot=2  [inv2:11, inv3:16, inv4:2, inv5:9, ...]
+```
 
-The number after slot= is your character slot — note it down. Inventory IDs: 2 = Equipment/Hotbar, 3 = Backpack (the one you usually want), 4 = Belt, 5 = Armor/Cosmetics.
+The number after `slot=` is your character slot — note it down.
 
-3. Edit your inventory
+| Inventory ID | What it is |
+|:---:|---|
+| `2` | Equipment / Hotbar |
+| `3` | **Backpack** ← the one you usually want |
+| `4` | Belt |
+| `5` | Armor / Cosmetics |
 
-⚠️ The tool's own CLI (items/set/add/remove/clear commands) always assumes character slot 0 and will error out or show empty results for any other slot. The script below works around that by calling the library directly.
+## 3 · Edit your inventory
 
-bash
+> [!WARNING]
+> The tool's own CLI (`items`/`set`/`add`/`remove`/`clear` commands) always assumes character slot `0` and will error out or show empty results for any other slot. The script below works around that by calling the library directly.
+
+```bash
 nano my_editor.py
-python
+```
+
+<details>
+<summary><strong>Paste this into <code>my_editor.py</code></strong> (click to expand)</summary>
+
+```python
 from gd_inventory_editor import GdInventoryEditor
 
 # ==== ADJUST THESE ====
@@ -98,25 +135,59 @@ list_items()
 # remove_item(7)
 
 editor.save(backup=True)
+```
+
+</details>
 
 Uncomment/adjust the calls at the bottom for what you want, then:
 
-bash
+```bash
 python3 my_editor.py
+```
 
-Respect each item's max stack size (see items.md) — going over it in one slot makes the game silently discard that item on load, no error shown. Need more? Call add_item() in a loop to spread it across several slots instead.
+> [!WARNING]
+> **Respect each item's max stack size** (see [`items.md`](./items.md)) — going over it in one slot makes the game silently discard that item on load, no error shown. Need more? Call `add_item()` in a loop to spread it across several slots instead.
 
-4. Copy it back and test
-bash
+## 4 · Copy it back and test
+
+```bash
 cp ~/icarus-save-editor/savegames/<PROSPECT_NAME>.json ~/.local/share/Steam/steamapps/compatdata/1149460/pfx/drive_c/users/steamuser/AppData/Local/Icarus/Saved/PlayerData/<YOUR_STEAMID64>/Prospects/<PROSPECT_NAME>.json
+```
 
-Load that prospect in a solo/private session first and confirm everything looks right before playing with friends.
+Load that prospect in a **solo/private session first** and confirm everything looks right before playing with friends.
 
-Troubleshooting
-KeyError: Player '...' slot 0 not found or "No items found" despite having items — you're hitting the CLI's slot-0 bug; use the script above instead of gd_inventory_cli.py directly.
-Players found: [] — you forgot editor.load() after creating GdInventoryEditor(...).
-An added item vanished after loading — you likely exceeded that item's max stack in one slot; check items.md and split it across slots.
-Terminal hangs after pasting a << 'EOF' block — known issue with heredocs in the fish shell; use nano instead.
-Credits
+---
 
-Built on N30Z/icarus-save-editor (save-editing toolkit and extracted game data). Not affiliated with RocketWerkz or the official Icarus team.
+## Troubleshooting
+
+<details>
+<summary><code>KeyError: Player '...' slot 0 not found</code> — or "No items found" despite having items</summary>
+<br>
+
+You're hitting the CLI's slot-0 bug — use the script above instead of running `gd_inventory_cli.py` directly.
+</details>
+
+<details>
+<summary><code>Players found: []</code></summary>
+<br>
+
+You forgot `editor.load()` right after creating `GdInventoryEditor(...)`.
+</details>
+
+<details>
+<summary>An item I added vanished after loading the save</summary>
+<br>
+
+You likely exceeded that item's max stack size in one slot — check [`items.md`](./items.md) and split the quantity across multiple slots instead.
+</details>
+
+<details>
+<summary>Terminal hangs after pasting a <code>&lt;&lt; 'EOF'</code> block</summary>
+<br>
+
+Known issue with heredocs in the `fish` shell — use `nano` instead.
+</details>
+
+---
+
+<sub>Built on [N30Z/icarus-save-editor](https://github.com/N30Z/icarus-save-editor) (save-editing toolkit and extracted game data). Not affiliated with RocketWerkz or the official Icarus team.</sub>
