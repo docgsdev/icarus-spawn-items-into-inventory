@@ -11,7 +11,7 @@ This edits your own local save file. Icarus has no anti-cheat, so there's no ban
 
 | File | What it is |
 |---|---|
-| [`index.html`](./index.html) | Full item reference — 2,453 items with icon, internal name, max stack size, weight, category, and an unofficial Portuguese/Spanish translation for each. Searchable, works offline once downloaded. **[Live version →](#)** *(add your GitHub Pages link here once enabled)* |
+| [`index.html`](./index.html) | Full item reference — 2,453 items with icon, internal name, max stack size, weight, category, and an unofficial Portuguese/Spanish translation for each. Searchable, works offline once downloaded. **
 | [`manual-editar-inventario-icarus-linux.md`](./manual-editar-inventario-icarus-linux.md) | Step-by-step walkthrough: locating your save under Proton, backing it up, and using a small Python script to list, add, edit, or remove inventory items. |
 | [`tabela-completa-itens-icarus.md`](./tabela-completa-itens-icarus.md) | The same 2,453-item list as plain Markdown, no icons/translations — lighter to read in a text editor. |
 
